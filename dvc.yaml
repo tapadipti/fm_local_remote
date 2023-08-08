@@ -47,3 +47,7 @@ stages:
         y: predicted
     - output/test/samples_of_mispredicted_images/:
         cache: false
+artifacts:
+  myfmmodel:
+    path: output/myfmmodel.keras
+    type: model
