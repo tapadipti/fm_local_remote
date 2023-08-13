@@ -1,0 +1,71 @@
+name: deploy-model
+
+on:
+  push:
+    tags:
+      - '*'
+
+env:
+  AWS_SAGEMAKER_ROLE: ${{ secrets.AWS_SAGEMAKER_ROLE }}
+permissions:
+  contents: write
+  id-token: write
+  pull-requests: write
+
+jobs:
+  act:
+    name: Parse model action and deploy model if stage was assigned
+    environment: cloud
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-region: us-east-1
+        role-to-assume: arn:aws:iam::342840881361:role/SandboxUser
+        role-duration-seconds: 900
+
+    - name: "Use GTO"
+      id: gto
+      uses: iterative/gto-action@14723404a00bb0c1e759c02ffcd24279df5815c2
+    
+    - uses: actions/setup-python@v2
+
+    - name: "For version registration action, print the details and then ignore the action."
+      if: steps.gto.outputs.event == 'registration'
+      run: |
+        echo "[$GITHUB_REF]: Version '${{ steps.gto.outputs.version }}' was registered for model '${{ steps.gto.outputs.name }}'. "
+        echo "Since this is not a stage assignment, I am ignoring this!"
+
+    - name: "For stage assignment action, print the details and then proceed to deploy."
+      if: steps.gto.outputs.event == 'assignment'
+      run: |
+        echo "[$GITHUB_REF]: Version '${{ steps.gto.outputs.version }}' of model '${{ steps.gto.outputs.name }}' was promoted to stage '${{ steps.gto.outputs.stage }}'"
+        echo "Since this is a stage assignment, I am going to work on this!"
+
+    - name: "Install packages except dvc"
+      if: steps.gto.outputs.event == 'assignment'
+      run: |
+        pip install --upgrade pip setuptools wheel
+        pip install -r requirements-deploy.txt
+
+    - name: "Install dvc"
+      if: steps.gto.outputs.event == 'assignment'
+      run: |
+        sudo wget https://dvc.org/deb/dvc.list -O /etc/apt/sources.list.d/dvc.list
+        wget -qO - https://dvc.org/deb/iterative.asc | gpg --dearmor > packages.iterative.gpg
+        sudo install -o root -g root -m 644 packages.iterative.gpg /etc/apt/trusted.gpg.d/
+        rm -f packages.iterative.gpg
+        sudo apt update
+        sudo apt install dvc
+
+    - name: "Get model url"
+      if: steps.gto.outputs.event == 'assignment'
+      run: |
+        echo "MODEL_URL=$(dvc get --show-url --rev ${{ github.sha }} https://github.com/${{ github.repository }} output/myfmmodel.tar.gz)" >> "$GITHUB_ENV"
+
+    - name: "Run deployment python script"
+      if: steps.gto.outputs.event == 'assignment'
+      run: |
+        python src/deploy.py ${{ steps.gto.outputs.version }} ${{ steps.gto.outputs.stage }} ${{ env.MODEL_URL }}

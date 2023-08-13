@@ -1,0 +1,4 @@
+tensorflow
+boto3
+sagemaker
+gitpython
