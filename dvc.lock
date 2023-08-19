@@ -27,30 +27,30 @@ stages:
       params.yaml:
         train.batch_size: 128
         train.dropout: 0.45
-        train.hidden_units: 64
+        train.hidden_units: 128
         train.lr: 0.001
         train.num_epochs: 2
     outs:
     - path: dvclive/metrics.json
       hash: md5
-      md5: 5e717b220cb428b2b9e33297b5ca11e3
-      size: 53
+      md5: 27726071847ad895ba8e6e76031dbd21
+      size: 52
     - path: dvclive/plots/metrics/accuracy.tsv
       hash: md5
-      md5: 3036b0793a00ae748640edd0287ebee8
-      size: 55
+      md5: 7388f5dee6445a23c56877aaa2a311d3
+      size: 54
     - path: output/myfmmodel.keras
       hash: md5
-      md5: 84529837d9ca7628762acc8f456e80e3
-      size: 3681312
+      md5: 9f9e46f2a87721b8dac8372b50d41e27
+      size: 7324888
     - path: output/myfmmodel.tar.gz
       hash: md5
-      md5: c7619b9602b1c30e11434c33b70c3c8f
-      size: 3257517
+      md5: 060f1020ac83cd0a7816341725659268
+      size: 6715286
     - path: output/train_logs.csv
       hash: md5
-      md5: 0b5a3384332c1e6805ec38ad87ae844e
-      size: 100
+      md5: 774a9f5321ff73e87edb7b646493077e
+      size: 99
   evaluate:
     cmd: python src/evaluate.py
     deps:
@@ -60,8 +60,8 @@ stages:
       size: 54950285
     - path: output/myfmmodel.keras
       hash: md5
-      md5: 84529837d9ca7628762acc8f456e80e3
-      size: 3681312
+      md5: 9f9e46f2a87721b8dac8372b50d41e27
+      size: 7324888
     - path: src/evaluate.py
       hash: md5
       md5: 1f095d24e9594bea8a4e9f28d5e799d5
@@ -69,14 +69,14 @@ stages:
     outs:
     - path: output/metrics.json
       hash: md5
-      md5: c832731f212f2ee2cddd06b08fefd41e
+      md5: 12d52da44c0ee22048412c419ece7764
       size: 83
     - path: output/predictions.json
       hash: md5
-      md5: 2e29898307c8b058f6cb4bf42c1819a8
+      md5: 554a4f33ab7b96c583e4694833c043b5
       size: 310000
     - path: output/test/samples_of_mispredicted_images/
       hash: md5
-      md5: 803a56b585903919202137c6dd94e908.dir
-      size: 169107
+      md5: 72ea2220b15c1abaecf3b8bcd4ab613e.dir
+      size: 174625
       nfiles: 10
