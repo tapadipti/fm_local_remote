@@ -51,3 +51,6 @@ artifacts:
   myfmmodel:
     path: output/myfmmodel.keras
     type: model
+  newmodel:
+    path: newmodel
+    type: model
